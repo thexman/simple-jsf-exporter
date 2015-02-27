@@ -1,0 +1,9 @@
+target/
+generated-java/
+test-output/
+bin/
+
+.settings/
+.classpath
+.project
+

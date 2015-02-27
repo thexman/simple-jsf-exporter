@@ -10,9 +10,9 @@
 	<groupId>com.a9ski.jsf</groupId>
 	<artifactId>simple-jsf-exporter</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<packaging>pom</packaging>
 	
-	<name>A9SKI JSF Exporter</name>
+	<name>Simple JSF Exporter</name>
 	<description>JSF exporter tag</description>
 	<url>https://github.com/thexman/jsf-exporter</url>
 	<inceptionYear>2015</inceptionYear>
@@ -39,49 +39,29 @@
 		
 		<version.org.apache.poi>3.11</version.org.apache.poi>
 	</properties>
-		
-	<dependencies>		
-		<dependency>
-			<groupId>javax.faces</groupId>
-			<artifactId>javax.faces-api</artifactId>
-			<version>2.2</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.el</groupId>
-			<artifactId>javax.el-api</artifactId>
-			<version>3.0.0</version>
-			<scope>provided</scope>
-		</dependency>
-
-		
-		
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi</artifactId>
-			<version>${version.org.apache.poi}</version>				
-		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-ooxml</artifactId>
-			<version>${version.org.apache.poi}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.primefaces</groupId>
-			<artifactId>primefaces</artifactId>
-			<version>5.1</version>
-			<scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.5</version>
-		</dependency>			
-	</dependencies>
 	
+	
+	<modules>
+		<module>simple-jsf-exporter-primefaces-excel</module>
+	</modules>
+	
+	<dependencyManagement>
+		<dependencies>		
+			<dependency>
+				<groupId>javax.faces</groupId>
+				<artifactId>javax.faces-api</artifactId>
+				<version>2.2</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.el</groupId>
+				<artifactId>javax.el-api</artifactId>
+				<version>3.0.0</version>
+				<scope>provided</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	
 	<build>
 		<plugins>

@@ -1,5 +1,8 @@
 package com.a9ski.jsf.exporter;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import javax.el.ELContext;
@@ -16,6 +19,7 @@ import javax.faces.event.ActionListener;
 import com.a9ski.jsf.exporter.dto.CallbackDto;
 import com.a9ski.jsf.exporter.dto.ClassInfoDto;
 import com.a9ski.jsf.exporter.dto.FileInfoDto;
+import com.a9ski.jsf.exporter.exceptions.ExportException;
 
 public class DataExporterAction implements ActionListener, StateHolder {
 
@@ -78,7 +82,7 @@ public class DataExporterAction implements ActionListener, StateHolder {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected <C extends UIComponent, O> DataExporter<C,O> createExporter(C sourceComponent, O options, String fileType, FacesContext facesContext, ELContext elContext) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+	protected <C extends UIComponent, O extends Serializable> DataExporter<C,O> createExporter(ELContext elContext) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		final Class<? extends DataExporter<C, O>> clazz;
 		if (classInfo.getClassValue() != null) {
 			final ClassLoader cl;
@@ -110,7 +114,7 @@ public class DataExporterAction implements ActionListener, StateHolder {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected <C extends UIComponent, O> void export(ActionEvent event) throws Exception {
+	protected <C extends UIComponent, O extends Serializable> void export(ActionEvent event) throws Exception {
 		final FacesContext facesContext = FacesContext.getCurrentInstance();
 		final ExternalContext externalContext = facesContext.getExternalContext();
 		final ELContext elContext = facesContext.getELContext();
@@ -118,7 +122,6 @@ public class DataExporterAction implements ActionListener, StateHolder {
 		// component to be exported
 		final String componentId = (String) sourceExpr.getValue(elContext);		
 		
-		@SuppressWarnings("unchecked")
 		final C sourceComponent = (C) event.getComponent().findComponent(componentId);
 		if (sourceComponent == null) {
 			throw new FacesException("Could not find component \"" + componentId + "\" in view");
@@ -126,16 +129,21 @@ public class DataExporterAction implements ActionListener, StateHolder {
 		
 	
 		final String fileType = (String) fileInfo.getFileType().getValue(elContext);
+		final String fileName = (String) fileInfo.getFileName().getValue(elContext);
 
+		// create exporter
+		final DataExporter<C,O> exporter = createExporter(elContext);		
+		
 		// retrieve exporter options
 		final O options;
 		if (optionsExpr == null) { 
-			options = null;
+			options = exporter.getDefaultOptions();
 		} else {
 			options = (O) optionsExpr.getValue(elContext);
 		}
-
-		final DataExporter<C,O> exporter = createExporter(sourceComponent, options, fileType, facesContext, elContext);		
+		
+		// initialize exporter
+		exporter.init(sourceComponent, options, fileType, fileName, facesContext);
 		
 		// invoke the pre-processor 
 		if (callback.getPreProcessor() != null) {
@@ -143,14 +151,26 @@ public class DataExporterAction implements ActionListener, StateHolder {
 		}
 		
 		// generate the export		
-		exporter.export(sourceComponent, options, fileType, facesContext);		
+		exporter.export(sourceComponent, options, fileType, fileName, facesContext);		
 		
 		// invoke the post-processor if there is one
 		if (callback.getPostProcessor() != null) {
 			callback.getPostProcessor().invoke(elContext, new Object[]{ exporter.getPostProcessorParam() });
 		}
 		
-		// configure response meta-data
+		// write exporter response
+		writeExport(facesContext, externalContext, elContext, exporter);
+		
+		exporter.close(sourceComponent, options, fileType, fileName, facesContext);
+		
+	}
+
+	private <C extends UIComponent, O extends Serializable> void writeExport(
+			final FacesContext facesContext,
+			final ExternalContext externalContext, final ELContext elContext,
+			final DataExporter<C, O> exporter) throws ExportException,
+			UnsupportedEncodingException, IOException {
+		
 		externalContext.setResponseContentType(exporter.getContentType());
 		externalContext.setResponseHeader("Expires", "0");
 		externalContext.setResponseHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
@@ -159,9 +179,10 @@ public class DataExporterAction implements ActionListener, StateHolder {
 		String encodedFileName = URLEncoder.encode((String)fileInfo.getFileName().getValue(elContext), "UTF-8");
 		externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"; filename*=UTF8''" + encodedFileName);
 		
+		exporter.writeExport(externalContext.getResponseOutputStream());
+		
 		// write the response and signal JSF that we're done
 		facesContext.responseComplete();
-		exporter.writeExport(externalContext.getResponseOutputStream());
 	}
 
 }

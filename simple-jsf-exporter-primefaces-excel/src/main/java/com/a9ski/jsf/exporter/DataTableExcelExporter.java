@@ -1,6 +1,7 @@
 package com.a9ski.jsf.exporter;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -23,6 +24,7 @@ import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.primefaces.component.api.DynamicColumn;
 import org.primefaces.component.api.UIColumn;
@@ -48,7 +50,7 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 	}
 
 	@Override
-	public void init(final DataTable dataTable, final DataTableExporterOptions options, final String fileType, final String fileName, final FacesContext facesContext) {
+	public void init(final DataTable dataTable, final DataTableExporterOptions options, final String fileType, final String fileName, final FacesContext facesContext) throws ExportException {
 		final ExcelFileType type = ExcelFileType.parse(fileType);
 		if (type == null) {
 			throw new IllegalArgumentException("Invalid file type");
@@ -56,16 +58,52 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 		this.type = type;
 		switch (type) {
 		case XLS:
-			workbook = new HSSFWorkbook();
+			workbook = createHSSFWorkbook(options);
 			creationHelper = workbook.getCreationHelper();
 			break;
 		case XLXS:
-			workbook = new XSSFWorkbook();
+			workbook = createXSSFWorkbook(options);
 			creationHelper = workbook.getCreationHelper();
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown file type " + type.name());
 		}
+	}
+
+	protected XSSFWorkbook createXSSFWorkbook(final DataTableExporterOptions options) throws ExportException {
+		final InputStream is = options.getTemplateStream();
+		final XSSFWorkbook wb;
+		if (is != null) {
+			try {
+				wb = new XSSFWorkbook(is);
+				is.close();
+			} catch (IOException ex) {
+				throw new ExportException(ex);
+			} finally {
+				IOUtils.closeQuietly(is);
+			}
+		} else {
+			wb = new XSSFWorkbook();
+		}
+		return wb;
+	}
+
+	protected HSSFWorkbook createHSSFWorkbook(final DataTableExporterOptions options) throws ExportException {
+		final InputStream is = options.getTemplateStream();
+		final HSSFWorkbook wb;
+		if (is != null) {
+			try {
+				wb = new HSSFWorkbook(is);
+				is.close();
+			} catch (IOException ex) {
+				throw new ExportException(ex);
+			} finally {
+				IOUtils.closeQuietly(is);
+			}
+		} else {
+			wb = new HSSFWorkbook();
+		}
+		return wb;
 	}
 
 	@Override

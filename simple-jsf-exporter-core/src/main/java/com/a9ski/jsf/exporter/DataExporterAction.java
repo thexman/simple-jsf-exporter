@@ -28,12 +28,12 @@ public class DataExporterAction implements ActionListener, StateHolder {
 	private FileInfoDto fileInfo;
 	private ClassInfoDto classInfo;
 	private CallbackDto callback;
-	
+
 	public DataExporterAction() {
 		super();
 	}
-	
-	public DataExporterAction(ValueExpression source, ValueExpression options, FileInfoDto fileInfo, ClassInfoDto classInfo, CallbackDto callback) {
+
+	public DataExporterAction(final ValueExpression source, final ValueExpression options, final FileInfoDto fileInfo, final ClassInfoDto classInfo, final CallbackDto callback) {
 		this.sourceExpr = source;
 		this.optionsExpr = options;
 		this.fileInfo = fileInfo;
@@ -42,24 +42,24 @@ public class DataExporterAction implements ActionListener, StateHolder {
 	}
 
 	@Override
-	public Object saveState(FacesContext context) {
-		Object[] values = new Object[5];
+	public Object saveState(final FacesContext context) {
+		final Object[] values = new Object[5];
 		values[0] = sourceExpr;
 		values[1] = optionsExpr;
 		values[2] = fileInfo;
 		values[3] = classInfo;
-		values[4] = callback;		
+		values[4] = callback;
 		return values;
 	}
 
 	@Override
-	public void restoreState(FacesContext context, Object state) {
-		Object[] values = (Object[]) state;
+	public void restoreState(final FacesContext context, final Object state) {
+		final Object[] values = (Object[]) state;
 		sourceExpr = (ValueExpression) values[0];
 		optionsExpr = (ValueExpression) values[1];
 		fileInfo = (FileInfoDto) values[2];
 		classInfo = (ClassInfoDto) values[3];
-		callback = (CallbackDto) values[4];		
+		callback = (CallbackDto) values[4];
 	}
 
 	@Override
@@ -68,26 +68,26 @@ public class DataExporterAction implements ActionListener, StateHolder {
 	}
 
 	@Override
-	public void setTransient(boolean newTransientValue) {
+	public void setTransient(final boolean newTransientValue) {
 		// do nothing
 	}
 
 	@Override
-	public void processAction(ActionEvent event) throws AbortProcessingException {
+	public void processAction(final ActionEvent event) throws AbortProcessingException {
 		try {
 			export(event);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new FacesException(e);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	protected <C extends UIComponent, O extends Serializable> DataExporter<C,O> createExporter(ELContext elContext) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+	protected <C extends UIComponent, O extends Serializable> DataExporter<C, O> createExporter(final ELContext elContext) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		final Class<? extends DataExporter<C, O>> clazz;
 		if (classInfo.getClassValue() != null) {
 			final ClassLoader cl;
 			if (classInfo.getClassLoader() != null) {
-				 cl = (ClassLoader) classInfo.getClassLoader().getValue(elContext);
+				cl = (ClassLoader) classInfo.getClassLoader().getValue(elContext);
 			} else {
 				if (Thread.currentThread().getContextClassLoader() != null) {
 					cl = Thread.currentThread().getContextClassLoader();
@@ -101,86 +101,81 @@ public class DataExporterAction implements ActionListener, StateHolder {
 			} else {
 				className = null;
 			}
-			
+
 			clazz = (Class<? extends DataExporter<C, O>>) cl.loadClass(className);
 		} else {
 			clazz = (Class<? extends DataExporter<C, O>>) classInfo.getClassValue().getValue(elContext);
 		}
-		
+
 		if (clazz != null) {
 			return clazz.newInstance();
 		}
 		throw new IllegalArgumentException("Cannot instantiate importer class");
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	protected <C extends UIComponent, O extends Serializable> void export(ActionEvent event) throws Exception {
+	protected <C extends UIComponent, O extends Serializable> void export(final ActionEvent event) throws Exception {
 		final FacesContext facesContext = FacesContext.getCurrentInstance();
 		final ExternalContext externalContext = facesContext.getExternalContext();
 		final ELContext elContext = facesContext.getELContext();
 
 		// component to be exported
-		final String componentId = (String) sourceExpr.getValue(elContext);		
-		
+		final String componentId = (String) sourceExpr.getValue(elContext);
+
 		final C sourceComponent = (C) event.getComponent().findComponent(componentId);
 		if (sourceComponent == null) {
 			throw new FacesException("Could not find component \"" + componentId + "\" in view");
 		}
-		
-	
+
 		final String fileType = (String) fileInfo.getFileType().getValue(elContext);
 		final String fileName = (String) fileInfo.getFileName().getValue(elContext);
 
 		// create exporter
-		final DataExporter<C,O> exporter = createExporter(elContext);		
-		
+		final DataExporter<C, O> exporter = createExporter(elContext);
+
 		// retrieve exporter options
 		final O options;
-		if (optionsExpr == null) { 
+		if (optionsExpr == null) {
 			options = exporter.getDefaultOptions();
 		} else {
 			options = (O) optionsExpr.getValue(elContext);
 		}
-		
+
 		// initialize exporter
 		exporter.init(sourceComponent, options, fileType, fileName, facesContext);
-		
-		// invoke the pre-processor 
+
+		// invoke the pre-processor
 		if (callback.getPreProcessor() != null) {
-			callback.getPreProcessor().invoke(elContext, new Object[]{ exporter.getPreProcessorParam() });
+			callback.getPreProcessor().invoke(elContext, new Object[] { exporter.getPreProcessorParam() });
 		}
-		
-		// generate the export		
-		exporter.export(sourceComponent, options, fileType, fileName, facesContext);		
-		
+
+		// generate the export
+		exporter.export(sourceComponent, options, fileType, fileName, facesContext);
+
 		// invoke the post-processor if there is one
 		if (callback.getPostProcessor() != null) {
-			callback.getPostProcessor().invoke(elContext, new Object[]{ exporter.getPostProcessorParam() });
+			callback.getPostProcessor().invoke(elContext, new Object[] { exporter.getPostProcessorParam() });
 		}
-		
+
 		// write exporter response
 		writeExport(facesContext, externalContext, elContext, exporter);
-		
+
 		exporter.close(sourceComponent, options, fileType, fileName, facesContext);
-		
+
 	}
 
-	private <C extends UIComponent, O extends Serializable> void writeExport(
-			final FacesContext facesContext,
-			final ExternalContext externalContext, final ELContext elContext,
-			final DataExporter<C, O> exporter) throws ExportException,
-			UnsupportedEncodingException, IOException {
-		
+	private <C extends UIComponent, O extends Serializable> void writeExport(final FacesContext facesContext, final ExternalContext externalContext, final ELContext elContext, final DataExporter<C, O> exporter) throws ExportException, UnsupportedEncodingException, IOException {
+
 		externalContext.setResponseContentType(exporter.getContentType());
 		externalContext.setResponseHeader("Expires", "0");
 		externalContext.setResponseHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
 		externalContext.setResponseHeader("Pragma", "public");
-		
-		String encodedFileName = URLEncoder.encode((String)fileInfo.getFileName().getValue(elContext), "UTF-8");
+
+		final String encodedFileName = URLEncoder.encode((String) fileInfo.getFileName().getValue(elContext), "UTF-8");
 		externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"; filename*=UTF8''" + encodedFileName);
-		
+
 		exporter.writeExport(externalContext.getResponseOutputStream());
-		
+
 		// write the response and signal JSF that we're done
 		facesContext.responseComplete();
 	}

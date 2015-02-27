@@ -47,10 +47,8 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 		return new DataTableExporterOptions();
 	}
 
-	
 	@Override
-	public void init(DataTable dataTable, DataTableExporterOptions options,
-			String fileType, String fileName, FacesContext facesContext) {
+	public void init(final DataTable dataTable, final DataTableExporterOptions options, final String fileType, final String fileName, final FacesContext facesContext) {
 		final ExcelFileType type = ExcelFileType.parse(fileType);
 		if (type == null) {
 			throw new IllegalArgumentException("Invalid file type");
@@ -66,59 +64,62 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 			creationHelper = workbook.getCreationHelper();
 			break;
 		default:
-			throw new IllegalArgumentException("Unknown file type "
-					+ type.name());
+			throw new IllegalArgumentException("Unknown file type " + type.name());
 		}
 	}
 
 	@Override
-	public void close(DataTable table, DataTableExporterOptions options, String fileType, String fileName, FacesContext context) {
+	public void close(final DataTable table, final DataTableExporterOptions options, final String fileType, final String fileName, final FacesContext context) {
 		// do nothing
 	}
 
-	
 	@Override
-	public void export(DataTable table, DataTableExporterOptions options, String fileType, String fileName, FacesContext context) {
+	public void export(final DataTable table, DataTableExporterOptions options, final String fileType, final String fileName, final FacesContext context) {
 		final Sheet sheet = workbook.createSheet();
 		addColumnFacets(table, sheet, ColumnType.HEADER);
 
 		if (options == null) {
 			options = getDefaultOptions();
 		}
-		
+
 		switch (options.getSelectionType()) {
-			case PAGE_ONLY: exportPageOnly(context, table, sheet); break;
-			case SELECTION_ONLY: exportSelectionOnly(context, table, sheet); break;
-			default: exportAll(context, table, sheet); break;
+		case PAGE_ONLY:
+			exportPageOnly(context, table, sheet);
+			break;
+		case SELECTION_ONLY:
+			exportSelectionOnly(context, table, sheet);
+			break;
+		default:
+			exportAll(context, table, sheet);
+			break;
 		}
-		
+
 		if (table.hasFooterColumn()) {
 			addColumnFacets(table, sheet, ColumnType.FOOTER);
 		}
 
 		table.setRowIndex(-1);
 	}
-	
-	protected void exportPageOnly(FacesContext context, DataTable table, Sheet sheet) {        
-        int first = table.getFirst();
-        int rows = table.getRows();
-        if(rows == 0) {
-            rows = table.getRowCount();
-        }
-        
-    	int rowsToExport = first + rows;
-        
-        for(int rowIndex = first; rowIndex < rowsToExport; rowIndex++) {                
-            exportRow(table, sheet, rowIndex);
-        }
-    }
-    
 
-	protected void exportAll(FacesContext context, DataTable table,	Sheet sheet) {
-		int first = table.getFirst();
-		int rowCount = table.getRowCount();
+	protected void exportPageOnly(final FacesContext context, final DataTable table, final Sheet sheet) {
+		final int first = table.getFirst();
 		int rows = table.getRows();
-		boolean lazy = table.isLazy();
+		if (rows == 0) {
+			rows = table.getRowCount();
+		}
+
+		final int rowsToExport = first + rows;
+
+		for (int rowIndex = first; rowIndex < rowsToExport; rowIndex++) {
+			exportRow(table, sheet, rowIndex);
+		}
+	}
+
+	protected void exportAll(final FacesContext context, final DataTable table, final Sheet sheet) {
+		final int first = table.getFirst();
+		final int rowCount = table.getRowCount();
+		final int rows = table.getRows();
+		final boolean lazy = table.isLazy();
 
 		if (lazy) {
 			if (rowCount > 0) {
@@ -148,7 +149,7 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 		}
 	}
 
-	protected void exportRow(DataTable table, Sheet sheet, int rowIndex) {
+	protected void exportRow(final DataTable table, final Sheet sheet, final int rowIndex) {
 		table.setRowIndex(rowIndex);
 		if (!table.isRowAvailable()) {
 			return;
@@ -156,40 +157,38 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 
 		exportCells(table, sheet);
 	}
-	
-    protected void exportCells(DataTable table, Sheet sheet) {
-        int sheetRowIndex = sheet.getLastRowNum() + 1;
-        Row row = sheet.createRow(sheetRowIndex);
-        
-        for (UIColumn col : table.getColumns()) {
-            if (col instanceof DynamicColumn) {
-                ((DynamicColumn) col).applyStatelessModel();
-            }
-                        
-            if (col.isRendered() && col.isExportable()) {
-                addColumnValue(row, col.getChildren());
-            }
-        }
-    }
-    
 
-	protected void exportSelectionOnly(FacesContext context, DataTable table, Sheet sheet) {
-		Object selection = table.getSelection();
-		String var = table.getVar();
+	protected void exportCells(final DataTable table, final Sheet sheet) {
+		final int sheetRowIndex = sheet.getLastRowNum() + 1;
+		final Row row = sheet.createRow(sheetRowIndex);
+
+		for (final UIColumn col : table.getColumns()) {
+			if (col instanceof DynamicColumn) {
+				((DynamicColumn) col).applyStatelessModel();
+			}
+
+			if (col.isRendered() && col.isExportable()) {
+				addColumnValue(row, col.getChildren(), col);
+			}
+		}
+	}
+
+	protected void exportSelectionOnly(final FacesContext context, final DataTable table, final Sheet sheet) {
+		final Object selection = table.getSelection();
+		final String var = table.getVar();
 
 		if (selection != null) {
-			Map<String, Object> requestMap = context.getExternalContext()
-					.getRequestMap();
+			final Map<String, Object> requestMap = context.getExternalContext().getRequestMap();
 
 			if (selection.getClass().isArray()) {
-				int size = Array.getLength(selection);
+				final int size = Array.getLength(selection);
 
 				for (int i = 0; i < size; i++) {
 					requestMap.put(var, Array.get(selection, i));
 					exportRow(table, sheet, i);
 				}
 			} else if (List.class.isAssignableFrom(selection.getClass())) {
-				List<?> list = (List<?>) selection;
+				final List<?> list = (List<?>) selection;
 
 				for (int i = 0; i < list.size(); i++) {
 					requestMap.put(var, list.get(i));
@@ -224,7 +223,7 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 	}
 
 	@Override
-	public void writeExport(OutputStream os) throws ExportException {
+	public void writeExport(final OutputStream os) throws ExportException {
 		try {
 			workbook.write(os);
 		} catch (final IOException ex) {
@@ -232,19 +231,19 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 		}
 	}
 
-	protected void addColumnFacets(DataTable table, Sheet sheet, ColumnType columnType) {
-		int sheetRowIndex = columnType.equals(ColumnType.HEADER) ? 0 : (sheet.getLastRowNum() + 1);
-		Row rowHeader = sheet.createRow(sheetRowIndex);
+	protected void addColumnFacets(final DataTable table, final Sheet sheet, final ColumnType columnType) {
+		final int sheetRowIndex = columnType.equals(ColumnType.HEADER) ? 0 : (sheet.getLastRowNum() + 1);
+		final Row rowHeader = sheet.createRow(sheetRowIndex);
 
-		for (UIColumn col : table.getColumns()) {
+		for (final UIColumn col : table.getColumns()) {
 			if (col instanceof DynamicColumn) {
 				((DynamicColumn) col).applyStatelessModel();
 			}
 
 			if (col.isRendered() && col.isExportable()) {
-				UIComponent facet = col.getFacet(columnType.facet());
+				final UIComponent facet = col.getFacet(columnType.facet());
 				if (facet != null) {
-					addColumnValue(rowHeader, facet);
+					addColumnValue(rowHeader, facet, col);
 				} else {
 					String textValue;
 					switch (columnType) {
@@ -261,56 +260,60 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 						break;
 					}
 
-					addColumnValue(rowHeader, textValue);
+					addColumnValue(rowHeader, textValue, col);
 				}
 			}
 		}
 	}
 
-	protected void addColumnValue(Row row, UIComponent component) {
-		String value = component == null ? "" : exportValue(FacesContext.getCurrentInstance(), component);
-		addColumnValue(row, value);
+	protected void addColumnValue(final Row row, final UIComponent component, final UIColumn tableCol) {
+		final String value = component == null ? "" : exportValue(FacesContext.getCurrentInstance(), component);
+		addColumnValue(row, value, tableCol);
 	}
 
-	protected void addColumnValue(Row row, String value) {
-		int cellIndex = row.getLastCellNum() == -1 ? 0 : row.getLastCellNum();
-		Cell cell = row.createCell(cellIndex);
+	protected void addColumnValue(final Row row, final String value, final UIColumn tableCol) {
+		final int cellIndex = row.getLastCellNum() == -1 ? 0 : row.getLastCellNum();
+		final Cell cell = row.createCell(cellIndex);
 
-		
+		addColumnValue(cell, value, tableCol);
+	}
+
+	protected void addColumnValue(final Cell cell, final String value, final UIColumn tableColumn) {
 		cell.setCellValue(creationHelper.createRichTextString(value));
 	}
 
-	protected void addColumnValue(Row row, List<UIComponent> components) {
-		int cellIndex = row.getLastCellNum() == -1 ? 0 : row.getLastCellNum();
-		Cell cell = row.createCell(cellIndex);
-		StringBuilder builder = new StringBuilder();
-		FacesContext context = FacesContext.getCurrentInstance();
+	protected void addColumnValue(final Row row, final List<UIComponent> components, final UIColumn tableCol) {
+		final int cellIndex = row.getLastCellNum() == -1 ? 0 : row.getLastCellNum();
+		final Cell cell = row.createCell(cellIndex);
+		final StringBuilder builder = new StringBuilder();
+		final FacesContext context = FacesContext.getCurrentInstance();
 
-		for (UIComponent component : components) {
+		for (final UIComponent component : components) {
 			if (component.isRendered()) {
-				String value = exportValue(context, component);
+				final String value = exportValue(context, component);
 
-				if (value != null)
+				if (value != null) {
 					builder.append(value);
+				}
 			}
 		}
 
-		cell.setCellValue(creationHelper.createRichTextString(builder.toString()));
+		addColumnValue(cell, builder.toString(), tableCol);
 	}
 
-	protected String exportValue(FacesContext context, UIComponent component) {
+	protected String exportValue(final FacesContext context, final UIComponent component) {
 
 		if (component instanceof HtmlCommandLink) { // support for PrimeFaces
-													// and standard
-													// HtmlCommandLink
-			HtmlCommandLink link = (HtmlCommandLink) component;
-			Object value = link.getValue();
+			// and standard
+			// HtmlCommandLink
+			final HtmlCommandLink link = (HtmlCommandLink) component;
+			final Object value = link.getValue();
 
 			if (value != null) {
 				return String.valueOf(value);
 			} else {
 				// export first value holder
-				for (UIComponent child : link.getChildren()) {
+				for (final UIComponent child : link.getChildren()) {
 					if (child instanceof ValueHolder) {
 						return exportValue(context, child);
 					}
@@ -321,28 +324,27 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 		} else if (component instanceof ValueHolder) {
 
 			if (component instanceof EditableValueHolder) {
-				Object submittedValue = ((EditableValueHolder) component)
-						.getSubmittedValue();
+				final Object submittedValue = ((EditableValueHolder) component).getSubmittedValue();
 				if (submittedValue != null) {
 					return submittedValue.toString();
 				}
 			}
 
-			ValueHolder valueHolder = (ValueHolder) component;
-			Object value = valueHolder.getValue();
+			final ValueHolder valueHolder = (ValueHolder) component;
+			final Object value = valueHolder.getValue();
 			if (value == null) {
 				return "";
 			}
 
 			Converter converter = valueHolder.getConverter();
 			if (converter == null) {
-				Class valueType = value.getClass();
+				final Class valueType = value.getClass();
 				converter = context.getApplication().createConverter(valueType);
 			}
 
 			if (converter != null) {
 				if (component instanceof UISelectMany) {
-					StringBuilder builder = new StringBuilder();
+					final StringBuilder builder = new StringBuilder();
 					List collection = null;
 
 					if (value instanceof List) {
@@ -350,23 +352,20 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 					} else if (value.getClass().isArray()) {
 						collection = Arrays.asList(value);
 					} else {
-						throw new FacesException("Value of "
-								+ component.getClientId(context)
-								+ " must be a List or an Array.");
+						throw new FacesException("Value of " + component.getClientId(context) + " must be a List or an Array.");
 					}
 
-					int collectionSize = collection.size();
+					final int collectionSize = collection.size();
 					for (int i = 0; i < collectionSize; i++) {
-						Object object = collection.get(i);
-						builder.append(converter.getAsString(context,
-								component, object));
+						final Object object = collection.get(i);
+						builder.append(converter.getAsString(context, component, object));
 
 						if (i < (collectionSize - 1)) {
 							builder.append(",");
 						}
 					}
 
-					String valuesAsString = builder.toString();
+					final String valuesAsString = builder.toString();
 					builder.setLength(0);
 
 					return valuesAsString;
@@ -377,21 +376,20 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 				return value.toString();
 			}
 		} else if (component instanceof CellEditor) {
-			return exportValue(context,
-					((CellEditor) component).getFacet("output"));
+			return exportValue(context, ((CellEditor) component).getFacet("output"));
 		} else if (component instanceof HtmlGraphicImage) {
 			return (String) component.getAttributes().get("alt");
 		} else {
 			// This would get the plain texts on UIInstructions when using
 			// Facelets
-			String value = component.toString();
+			final String value = component.toString();
 
-			if (value != null)
+			if (value != null) {
 				return value.trim();
-			else
+			} else {
 				return "";
+			}
 		}
 	}
-
 
 }

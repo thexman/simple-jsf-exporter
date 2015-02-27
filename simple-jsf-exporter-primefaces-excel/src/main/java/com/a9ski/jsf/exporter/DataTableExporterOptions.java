@@ -10,13 +10,13 @@ public class DataTableExporterOptions implements Serializable {
 	private static final long serialVersionUID = -7572667248366824067L;
 
 	private SelectionType selectionType = SelectionType.ALL;
-	
+
 	public SelectionType getSelectionType() {
 		return selectionType;
 	}
-	
-	public void setSelectionType(SelectionType selectionType) {
+
+	public void setSelectionType(final SelectionType selectionType) {
 		this.selectionType = selectionType;
 	}
-	
+
 }

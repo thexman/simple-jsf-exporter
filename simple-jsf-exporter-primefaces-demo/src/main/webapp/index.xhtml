@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:e="http://www.a9ski.com/jsf/exporter">
+ 
+<h:head>
+</h:head>
+<h:body>
+	<h:form id="carsForm">
+		<p:dataTable id="carsTable" var="car" value="#{carsBean.cars}" rows="10" paginator="true" rowsPerPageTemplate="5,10,15"
+			paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
+		    
+		    <f:facet name="header">					
+				<p:commandButton value="Export to XLX" icon="ui-icon-document" ajax="false" partialSubmit="true">
+					<e:dataExporter source="carsTable" fileType="xls" fileName="cars.xls" exporterClass="#{carsBean.exporter}"/>
+				</p:commandButton>
+			</f:facet>
+		    
+		    <p:column headerText="Id">
+		        <h:outputText value="#{car.id}" />
+		    </p:column>
+		 
+		    <p:column headerText="Year">
+		        <h:outputText value="#{car.year}" />
+		    </p:column>
+		 
+		    <p:column headerText="Brand">
+		        <h:outputText value="#{car.brand}" />
+		    </p:column>
+		 
+		    <p:column headerText="Color">
+		        <h:outputText value="#{car.color}" />
+		    </p:column>
+		</p:dataTable>
+	</h:form>
+</h:body>
+</html>
+

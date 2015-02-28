@@ -42,7 +42,9 @@
 	
 	
 	<modules>
+		<module>simple-jsf-exporter-core</module>
 		<module>simple-jsf-exporter-primefaces-excel</module>
+		<module>simple-jsf-exporter-primefaces-demo</module>
 	</modules>
 	
 	<dependencyManagement>

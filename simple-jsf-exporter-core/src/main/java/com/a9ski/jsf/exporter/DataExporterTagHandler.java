@@ -34,9 +34,9 @@ public class DataExporterTagHandler extends TagHandler {
 		super(tagConfig);
 		this.sourceTag = getRequiredAttribute("source");
 		this.optionsTag = getAttribute("options");
-		this.classNameTag = getRequiredAttribute("exporterClassName");
-		this.classTag = getRequiredAttribute("exporterClass");
-		this.classLoaderTag = getRequiredAttribute("exporterClassLoader");
+		this.classNameTag = getAttribute("exporterClassName");
+		this.classTag = getAttribute("exporterClass");
+		this.classLoaderTag = getAttribute("exporterClassLoader");
 		this.fileTypeTag = getRequiredAttribute("fileType");
 		this.fileNameTag = getRequiredAttribute("fileName");
 		this.preProcessorTag = getAttribute("preProcessor");
@@ -44,17 +44,23 @@ public class DataExporterTagHandler extends TagHandler {
 	}
 
 	private ValueExpression getValueExpression(final FaceletContext ctx, final TagAttribute attr, final Class<?> type) {
+		final ValueExpression exp;
 		if (attr != null) {
-			attr.getValueExpression(ctx, type);
+			exp = attr.getValueExpression(ctx, type);
+		} else {
+			exp = null;
 		}
-		return null;
+		return exp;
 	}
 
 	private MethodExpression getMethodExpression(final FaceletContext ctx, final TagAttribute attr, final Class<?> returnType, final Class<?>[] paramTypes) {
+		final MethodExpression exp;
 		if (attr != null) {
-			attr.getMethodExpression(ctx, returnType, paramTypes);
+			exp = attr.getMethodExpression(ctx, returnType, paramTypes);
+		} else {
+			exp = null;
 		}
-		return null;
+		return exp;
 	}
 
 	private MethodExpression getPrePostProcessorMethodExpression(final FaceletContext ctx, final TagAttribute attr) {

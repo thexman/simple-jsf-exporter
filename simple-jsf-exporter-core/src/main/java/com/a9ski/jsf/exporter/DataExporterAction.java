@@ -84,7 +84,7 @@ public class DataExporterAction implements ActionListener, StateHolder {
 	@SuppressWarnings("unchecked")
 	protected <C extends UIComponent, O extends Serializable> DataExporter<C, O> createExporter(final ELContext elContext) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		final Class<? extends DataExporter<C, O>> clazz;
-		if (classInfo.getClassValue() != null) {
+		if (classInfo.getClassValue() == null) {
 			final ClassLoader cl;
 			if (classInfo.getClassLoader() != null) {
 				cl = (ClassLoader) classInfo.getClassLoader().getValue(elContext);
@@ -99,7 +99,7 @@ public class DataExporterAction implements ActionListener, StateHolder {
 			if (classInfo.getClassName() != null) {
 				className = (String) classInfo.getClassName().getValue(elContext);
 			} else {
-				className = null;
+				throw new IllegalArgumentException("Requires either exporterClassName or exporterClass");
 			}
 
 			clazz = (Class<? extends DataExporter<C, O>>) cl.loadClass(className);

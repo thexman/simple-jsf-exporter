@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.a9ski.jsf</groupId>
 		<artifactId>simple-jsf-exporter</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0</version>
 	</parent>
 	
 	<groupId>com.a9ski.jsf</groupId>

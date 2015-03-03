@@ -9,4 +9,15 @@ If you don't want to use complicated frameworks like com.lapis.jsfexporter, then
 ## License
 Apache 2.0, so you can use this in commercial projects.
 
+## Release
+1. mvn clean install
+2. mvn release:prepare
+3. checkout the newly created tag
+4. release.bat mysecretpassword
+
+
+Step 2 can be done manually:
+a) remove -SNAPSHOT from the version in all pom.xml files (the parent pom.xml and all module's pom.xml)
+b) commit the changes and create new tag with the version
+c) add -SNAPSHOT to all pom.xml files and increase the version (e.g. 1.0.0 to 1.0.1-SNAPSHOT)
 

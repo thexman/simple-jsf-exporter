@@ -9,7 +9,6 @@
 	
 	<groupId>com.a9ski.jsf</groupId>
 	<artifactId>simple-jsf-exporter-primefaces-excel</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
 	<name>Simple JSF Exporter Primefaces Excel</name>

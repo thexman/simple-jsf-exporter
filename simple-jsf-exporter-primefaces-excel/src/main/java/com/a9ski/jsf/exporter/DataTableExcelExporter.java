@@ -1,5 +1,26 @@
+/*
+ * #%L
+ * Simple JSF Exporter Primefaces Excel
+ * %%
+ * Copyright (C) 2015 A9SKI
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 package com.a9ski.jsf.exporter;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,6 +40,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
@@ -33,6 +55,12 @@ import org.primefaces.component.datatable.DataTable;
 
 import com.a9ski.jsf.exporter.exceptions.ExportException;
 
+/**
+ * Exporter for primefaces DataTable components
+ * 
+ * @author Kiril Arabadzhiyski
+ *
+ */
 public class DataTableExcelExporter implements DataExporter<DataTable, DataTableExporterOptions> {
 
 	/**
@@ -71,16 +99,15 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 	}
 
 	protected XSSFWorkbook createXSSFWorkbook(final DataTableExporterOptions options) throws ExportException {
-		final InputStream is = options.getTemplateStream();
+		final File templateFile = options.getTemplateFile();
 		final XSSFWorkbook wb;
-		if (is != null) {
+		if (templateFile != null && templateFile.exists()) {
 			try {
-				wb = new XSSFWorkbook(is);
-				is.close();
-			} catch (IOException ex) {
+				wb = new XSSFWorkbook(templateFile);
+			} catch (final IOException ex) {
 				throw new ExportException(ex);
-			} finally {
-				IOUtils.closeQuietly(is);
+			} catch (final InvalidFormatException ex) {
+				throw new ExportException(ex);
 			}
 		} else {
 			wb = new XSSFWorkbook();
@@ -89,16 +116,19 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 	}
 
 	protected HSSFWorkbook createHSSFWorkbook(final DataTableExporterOptions options) throws ExportException {
-		final InputStream is = options.getTemplateStream();
+		final File templateFile = options.getTemplateFile();
 		final HSSFWorkbook wb;
-		if (is != null) {
+		if (templateFile != null && templateFile.exists()) {
 			try {
-				wb = new HSSFWorkbook(is);
-				is.close();
-			} catch (IOException ex) {
+				final InputStream is = new FileInputStream(templateFile);
+				try {
+					wb = new HSSFWorkbook(is);
+					is.close();
+				} finally {
+					IOUtils.closeQuietly(is);
+				}
+			} catch (final IOException ex) {
 				throw new ExportException(ex);
-			} finally {
-				IOUtils.closeQuietly(is);
 			}
 		} else {
 			wb = new HSSFWorkbook();

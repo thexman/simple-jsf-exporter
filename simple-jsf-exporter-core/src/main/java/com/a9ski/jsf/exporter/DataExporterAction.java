@@ -1,3 +1,22 @@
+/*
+ * #%L
+ * Simple JSF Exporter Core
+ * %%
+ * Copyright (C) 2015 Kiril Arabadzhiyski
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 package com.a9ski.jsf.exporter;
 
 import java.io.IOException;
@@ -21,6 +40,12 @@ import com.a9ski.jsf.exporter.dto.ClassInfoDto;
 import com.a9ski.jsf.exporter.dto.FileInfoDto;
 import com.a9ski.jsf.exporter.exceptions.ExportException;
 
+/**
+ * ActionListener that performs data exporting
+ * 
+ * @author Kiril Arabadzhiyski
+ *
+ */
 public class DataExporterAction implements ActionListener, StateHolder {
 
 	private ValueExpression sourceExpr;
@@ -141,27 +166,28 @@ public class DataExporterAction implements ActionListener, StateHolder {
 			options = (O) optionsExpr.getValue(elContext);
 		}
 
-		// initialize exporter
-		exporter.init(sourceComponent, options, fileType, fileName, facesContext);
+		try {
+			// initialize exporter
+			exporter.init(sourceComponent, options, fileType, fileName, facesContext);
 
-		// invoke the pre-processor
-		if (callback.getPreProcessor() != null) {
-			callback.getPreProcessor().invoke(elContext, new Object[] { exporter.getPreProcessorParam() });
+			// invoke the pre-processor
+			if (callback.getPreProcessor() != null) {
+				callback.getPreProcessor().invoke(elContext, new Object[] { exporter.getPreProcessorParam() });
+			}
+
+			// generate the export
+			exporter.export(sourceComponent, options, fileType, fileName, facesContext);
+
+			// invoke the post-processor if there is one
+			if (callback.getPostProcessor() != null) {
+				callback.getPostProcessor().invoke(elContext, new Object[] { exporter.getPostProcessorParam() });
+			}
+
+			// write exporter response
+			writeExport(facesContext, externalContext, elContext, exporter);
+		} finally {
+			exporter.close(sourceComponent, options, fileType, fileName, facesContext);
 		}
-
-		// generate the export
-		exporter.export(sourceComponent, options, fileType, fileName, facesContext);
-
-		// invoke the post-processor if there is one
-		if (callback.getPostProcessor() != null) {
-			callback.getPostProcessor().invoke(elContext, new Object[] { exporter.getPostProcessorParam() });
-		}
-
-		// write exporter response
-		writeExport(facesContext, externalContext, elContext, exporter);
-
-		exporter.close(sourceComponent, options, fileType, fileName, facesContext);
-
 	}
 
 	private <C extends UIComponent, O extends Serializable> void writeExport(final FacesContext facesContext, final ExternalContext externalContext, final ELContext elContext, final DataExporter<C, O> exporter) throws ExportException, UnsupportedEncodingException, IOException {

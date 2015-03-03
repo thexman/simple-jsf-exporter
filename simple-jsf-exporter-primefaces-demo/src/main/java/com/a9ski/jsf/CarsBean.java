@@ -1,3 +1,22 @@
+/*
+ * #%L
+ * Simple JSF Exporter Primefaces Demo
+ * %%
+ * Copyright (C) 2015 Kiril Arabadzhiyski
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 package com.a9ski.jsf;
 
 import java.io.Serializable;
@@ -37,34 +56,32 @@ public class CarsBean implements Serializable {
 		colors[8] = "Brown";
 		colors[9] = "Maroon";
 
-		brands = new String[] {
-				"BMW", "Mercedes", "Volvo", "Audi", "Renault", "Fiat", "Volkswagen",
-				"Honda", "Jaguar", "Ford", "Opel", "Mazda", "Toyota" };
+		brands = new String[] { "BMW", "Mercedes", "Volvo", "Audi", "Renault", "Fiat", "Volkswagen", "Honda", "Jaguar", "Ford", "Opel", "Mazda", "Toyota" };
 	}
 
 	private final Random r = new Random(1024);
-	
-	private List<Car> cars = new ArrayList<Car>();
+
+	private final List<Car> cars = new ArrayList<Car>();
 
 	public CarsBean() {
 		super();
 	}
 
-	private String random(String[] items) {
+	private String random(final String[] items) {
 		return items[r.nextInt(items.length)];
 	}
-	
+
 	@PostConstruct
 	public void init() {
-		for(int i = 0; i < 100; i++) {
-			cars.add(new Car(i, random(brands), random(colors), r.nextInt(15) + 2000, r.nextInt(30) * 1000 ));
+		for (int i = 0; i < 100; i++) {
+			cars.add(new Car(i, random(brands), random(colors), r.nextInt(15) + 2000, r.nextInt(30) * 1000));
 		}
 	}
-	
+
 	public List<Car> getCars() {
 		return cars;
 	}
-	
+
 	public Class<?> getExporter() {
 		return DataTableExcelExporter.class;
 	}

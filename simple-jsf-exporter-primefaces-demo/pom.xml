@@ -63,13 +63,13 @@
 		<dependency>
 			<groupId>com.a9ski.jsf</groupId>
 			<artifactId>simple-jsf-exporter-core</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
+			<version>1.0.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.a9ski.jsf</groupId>
 			<artifactId>simple-jsf-exporter-primefaces-excel</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
+			<version>1.0.2-SNAPSHOT</version>
 		</dependency>
 
 

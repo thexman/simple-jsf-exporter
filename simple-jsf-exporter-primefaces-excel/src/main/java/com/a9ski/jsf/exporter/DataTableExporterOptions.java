@@ -30,11 +30,12 @@ import java.io.Serializable;
  */
 public class DataTableExporterOptions implements Serializable {
 
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -7572667248366824067L;
-
+	private static final long serialVersionUID = 1075141154058776746L;
+	
 	private SelectionType selectionType = SelectionType.ALL;
 	private File templateFile = null;
 	private int firstHeaderRow = 0;

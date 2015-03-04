@@ -68,13 +68,18 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 	 */
 	private static final long serialVersionUID = 130970127138675488L;
 
-	private Workbook workbook;
-	private CreationHelper creationHelper;
-	private ExcelFileType type;
+	protected Workbook workbook;
+	protected CreationHelper creationHelper;
+	protected ExcelFileType type;
+	protected DataTableExporterOptions options;
 
 	@Override
 	public DataTableExporterOptions getDefaultOptions() {
 		return new DataTableExporterOptions();
+	}
+	
+	public DataTableExporterOptions getOptions() {
+		return options;
 	}
 
 	@Override
@@ -96,6 +101,8 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 		default:
 			throw new IllegalArgumentException("Unknown file type " + type.name());
 		}
+
+		this.options = options;
 	}
 
 	protected XSSFWorkbook createXSSFWorkbook(final DataTableExporterOptions options) throws ExportException {
@@ -144,32 +151,34 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 	@Override
 	public void export(final DataTable table, DataTableExporterOptions options, final String fileType, final String fileName, final FacesContext context) {
 		final Sheet sheet = workbook.createSheet();
-		addColumnFacets(table, sheet, ColumnType.HEADER);
-
-		if (options == null) {
-			options = getDefaultOptions();
-		}
-
-		switch (options.getSelectionType()) {
-		case PAGE_ONLY:
-			exportPageOnly(context, table, sheet);
-			break;
-		case SELECTION_ONLY:
-			exportSelectionOnly(context, table, sheet);
-			break;
-		default:
-			exportAll(context, table, sheet);
-			break;
-		}
-
-		if (table.hasFooterColumn()) {
-			addColumnFacets(table, sheet, ColumnType.FOOTER);
-		}
+		export(table, options, context, sheet);
 
 		table.setRowIndex(-1);
 	}
 
-	protected void exportPageOnly(final FacesContext context, final DataTable table, final Sheet sheet) {
+	protected void export(final DataTable table, DataTableExporterOptions options, final FacesContext context, final Sheet sheet) {
+		options = getOptions();
+		
+		addColumnFacets(table, options, sheet, ColumnType.HEADER);
+
+		switch (options.getSelectionType()) {
+		case PAGE_ONLY:
+			exportPageOnly(context, table, sheet, options);
+			break;
+		case SELECTION_ONLY:
+			exportSelectionOnly(context, table, sheet, options);
+			break;
+		default:
+			exportAll(context, table, sheet, options);
+			break;
+		}
+
+		if (table.hasFooterColumn()) {
+			addColumnFacets(table, options, sheet, ColumnType.FOOTER);
+		}
+	}
+
+	protected void exportPageOnly(final FacesContext context, final DataTable table, final Sheet sheet, DataTableExporterOptions options2) {
 		final int first = table.getFirst();
 		int rows = table.getRows();
 		if (rows == 0) {
@@ -183,7 +192,7 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 		}
 	}
 
-	protected void exportAll(final FacesContext context, final DataTable table, final Sheet sheet) {
+	protected void exportAll(final FacesContext context, final DataTable table, final Sheet sheet, DataTableExporterOptions options2) {
 		final int first = table.getFirst();
 		final int rowCount = table.getRowCount();
 		final int rows = table.getRows();
@@ -241,7 +250,7 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 		}
 	}
 
-	protected void exportSelectionOnly(final FacesContext context, final DataTable table, final Sheet sheet) {
+	protected void exportSelectionOnly(final FacesContext context, final DataTable table, final Sheet sheet, DataTableExporterOptions options2) {
 		final Object selection = table.getSelection();
 		final String var = table.getVar();
 
@@ -299,8 +308,8 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 		}
 	}
 
-	protected void addColumnFacets(final DataTable table, final Sheet sheet, final ColumnType columnType) {
-		final int sheetRowIndex = columnType.equals(ColumnType.HEADER) ? 0 : (sheet.getLastRowNum() + 1);
+	protected void addColumnFacets(final DataTable table, DataTableExporterOptions options, final Sheet sheet, final ColumnType columnType) {
+		final int sheetRowIndex = columnType.equals(ColumnType.HEADER) ? getFirstHeaderRow(options) : (sheet.getLastRowNum() + 1);
 		final Row rowHeader = sheet.createRow(sheetRowIndex);
 
 		for (final UIColumn col : table.getColumns()) {
@@ -332,6 +341,10 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 				}
 			}
 		}
+	}
+
+	protected int getFirstHeaderRow(DataTableExporterOptions options) {
+		return options.getFirstHeaderRow();
 	}
 
 	protected void addColumnValue(final Row row, final UIComponent component, final UIColumn tableCol) {
@@ -370,7 +383,6 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 	}
 
 	protected String exportValue(final FacesContext context, final UIComponent component) {
-
 		if (component instanceof HtmlCommandLink) { // support for PrimeFaces
 			// and standard
 			// HtmlCommandLink

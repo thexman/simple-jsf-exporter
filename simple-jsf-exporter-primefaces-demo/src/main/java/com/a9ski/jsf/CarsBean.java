@@ -29,6 +29,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
 import com.a9ski.jsf.exporter.DataTableExcelExporter;
+import com.a9ski.jsf.exporter.DataTableExporterOptions;
 
 @ManagedBean
 @ViewScoped
@@ -84,6 +85,12 @@ public class CarsBean implements Serializable {
 
 	public Class<?> getExporter() {
 		return DataTableExcelExporter.class;
+	}
+	
+	public Serializable getExportOptions() {
+		final DataTableExporterOptions options = new DataTableExporterOptions();
+		options.setFirstHeaderRow(5);
+		return options;
 	}
 
 }

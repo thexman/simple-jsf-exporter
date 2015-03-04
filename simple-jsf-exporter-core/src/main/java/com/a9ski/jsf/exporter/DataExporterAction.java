@@ -163,7 +163,12 @@ public class DataExporterAction implements ActionListener, StateHolder {
 		if (optionsExpr == null) {
 			options = exporter.getDefaultOptions();
 		} else {
-			options = (O) optionsExpr.getValue(elContext);
+			final O o = (O) optionsExpr.getValue(elContext);
+			if (o == null) {
+				options = exporter.getDefaultOptions();
+			} else {
+				options = o;
+			}
 		}
 
 		try {

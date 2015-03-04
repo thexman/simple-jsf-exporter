@@ -24,7 +24,7 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
 	version="2.0">
 
-	<name>a9ski-jsf-exporter</name>
+	<name>simple_jsf_exporter</name>
 
 	<component>
 		<component-type>com.a9ski.jsf.exporter.DataExporterAction</component-type>

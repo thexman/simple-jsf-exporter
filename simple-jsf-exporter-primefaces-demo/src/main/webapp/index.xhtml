@@ -37,7 +37,8 @@
 		    
 		    <f:facet name="header">					
 				<p:commandButton value="Export to XLX" icon="ui-icon-document" ajax="false" partialSubmit="true">
-					<e:dataExporter source="carsTable" fileType="xls" fileName="cars.xls" exporterClass="#{carsBean.exporter}"/>
+					<e:dataExporter source="carsTable" fileType="xls" fileName="cars.xls" exporterClass="#{carsBean.exporter}" 
+					options="#{carsBean.exportOptions}"/>
 				</p:commandButton>
 			</f:facet>
 		    

@@ -37,6 +37,7 @@ public class DataTableExporterOptions implements Serializable {
 
 	private SelectionType selectionType = SelectionType.ALL;
 	private File templateFile = null;
+	private int firstHeaderRow = 0;
 
 	public SelectionType getSelectionType() {
 		return selectionType;
@@ -60,5 +61,21 @@ public class DataTableExporterOptions implements Serializable {
 	 */
 	public void setTemplateFile(final File templateFile) {
 		this.templateFile = templateFile;
+	}
+	
+	/**
+	 * Gets the first header row (zero based). Default value is 0
+	 * @return the first header row (zero based)
+	 */
+	public int getFirstHeaderRow() {
+		return firstHeaderRow;
+	}
+	
+	/**
+	 * Sets the first header row (zero based)
+	 * @param firstHeaderRow the first header row
+	 */
+	public void setFirstHeaderRow(int firstHeaderRow) {
+		this.firstHeaderRow = firstHeaderRow;
 	}
 }

@@ -9,7 +9,7 @@
 	
 	<groupId>com.a9ski.jsf</groupId>
 	<artifactId>simple-jsf-exporter</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.1</version>
 	<packaging>pom</packaging>
 	
 	<name>Simple JSF Exporter</name>
@@ -31,7 +31,7 @@
 		<url>https://github.com/thexman/jsf-exporter</url>
 		<connection>scm:git:ssh://git@github.com/thexman/jsf-exporter.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/thexman/jsf-exporter.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>1.0.1</tag>
 	</scm>
 	
 	<properties>

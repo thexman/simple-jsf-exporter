@@ -38,6 +38,7 @@ public class DataTableExporterOptions implements Serializable {
 	private SelectionType selectionType = SelectionType.ALL;
 	private File templateFile = null;
 	private int firstHeaderRow = 0;
+	private int chunkSize = 100;
 
 	public SelectionType getSelectionType() {
 		return selectionType;
@@ -77,5 +78,21 @@ public class DataTableExporterOptions implements Serializable {
 	 */
 	public void setFirstHeaderRow(int firstHeaderRow) {
 		this.firstHeaderRow = firstHeaderRow;
+	}
+	
+	/**
+	 * Gets the max number of items loaded in the memory. Used only when exporint the entire table
+	 * @return the max number of items loaded in the memory
+	 */
+	public int getChunkSize() {
+		return chunkSize;
+	}
+	
+	/**
+	 * Sets the max number of items loaded in the memory. Used only when exporint the entire table
+	 * @param chunkSize
+	 */
+	public void setChunkSize(int chunkSize) {
+		this.chunkSize = chunkSize;
 	}
 }

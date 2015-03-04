@@ -198,31 +198,45 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 		final int rows = table.getRows();
 		final boolean lazy = table.isLazy();
 
-		if (lazy) {
-			if (rowCount > 0) {
-				table.setFirst(0);
-				table.setRows(rowCount);
+		if (rowCount > 0) {
+			if (lazy) {
+				final int chunksCount;
+				final int chunkSize;
+				
+				if (options.getChunkSize() > 0) {
+					chunkSize = options.getChunkSize();
+					chunksCount = rowCount / chunkSize + (rowCount % chunkSize >  0 ? 1 : 0);
+				} else {
+					chunksCount = 1;
+					chunkSize = rowCount;
+				}
+				
+				for(int chunk = 0; chunk < chunksCount; chunk++) {					
+					final int firstRow = chunk * chunkSize;  
+					table.setFirst(firstRow);
+					table.setRows(chunkSize);
+					table.clearLazyCache();
+					table.loadLazyData();
+				
+					for (int rowIndex = 0; rowIndex < chunkSize; rowIndex++) {
+						exportRow(table, sheet, rowIndex);
+					}
+				}
+	
+				// restore
+				table.setFirst(first);
+				table.setRows(rows);
+				table.setRowIndex(-1);
 				table.clearLazyCache();
 				table.loadLazyData();
+			} else {
+				for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+					exportRow(table, sheet, rowIndex);
+				}
+	
+				// restore
+				table.setFirst(first);
 			}
-
-			for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-				exportRow(table, sheet, rowIndex);
-			}
-
-			// restore
-			table.setFirst(first);
-			table.setRows(rows);
-			table.setRowIndex(-1);
-			table.clearLazyCache();
-			table.loadLazyData();
-		} else {
-			for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-				exportRow(table, sheet, rowIndex);
-			}
-
-			// restore
-			table.setFirst(first);
 		}
 	}
 

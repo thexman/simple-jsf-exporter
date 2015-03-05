@@ -253,7 +253,7 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 		final int sheetRowIndex = sheet.getLastRowNum() + 1;
 		final Row row = sheet.createRow(sheetRowIndex);
 
-		for (final UIColumn col : table.getColumns()) {
+		for (final UIColumn col : getTableColumns(table)) {
 			if (col instanceof DynamicColumn) {
 				((DynamicColumn) col).applyStatelessModel();
 			}
@@ -262,6 +262,10 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 				addColumnValue(row, col.getChildren(), col, table);
 			}
 		}
+	}
+
+	protected List<UIColumn> getTableColumns(final DataTable table) {
+		return table.getColumns();
 	}
 
 	protected void exportSelectionOnly(final FacesContext context, final DataTable table, final Sheet sheet, DataTableExporterOptions options2) throws ExportException {
@@ -326,7 +330,7 @@ public class DataTableExcelExporter implements DataExporter<DataTable, DataTable
 		final int sheetRowIndex = columnType.equals(ColumnType.HEADER) ? getFirstHeaderRow(options) : (sheet.getLastRowNum() + 1);
 		final Row rowHeader = sheet.createRow(sheetRowIndex);
 
-		for (final UIColumn col : table.getColumns()) {
+		for (final UIColumn col : getTableColumns(table)) {
 			if (col instanceof DynamicColumn) {
 				((DynamicColumn) col).applyStatelessModel();
 			}

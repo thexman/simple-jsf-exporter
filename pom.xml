@@ -9,7 +9,7 @@
 	
 	<groupId>com.a9ski.jsf</groupId>
 	<artifactId>simple-jsf-exporter</artifactId>
-	<version>1.0.4-SNAPSHOT</version>
+	<version>1.0.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	
 	<name>Simple JSF Exporter</name>
@@ -37,7 +37,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-		<version.org.apache.poi>3.11</version.org.apache.poi>
+		<version.org.apache.poi>3.17</version.org.apache.poi>
 	</properties>
 	
 	

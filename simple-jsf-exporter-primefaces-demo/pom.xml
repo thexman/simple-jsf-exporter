@@ -11,13 +11,13 @@
 	<name>Simple JSF Exporter Primefaces Demo</name>
 	<groupId>com.a9ski.jsf</groupId>
 	<artifactId>simple-jsf-exporter-primefaces-demo</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<packaging>war</packaging>
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-		<version.org.apache.poi>3.11</version.org.apache.poi>
+		<version.org.apache.poi>3.17</version.org.apache.poi>
 	</properties>
 	
 	<dependencies>	
@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>org.primefaces</groupId>
 			<artifactId>primefaces</artifactId>
-			<version>5.1</version>
+			<version>6.0</version>
 		</dependency>
 
 		<dependency>
@@ -76,7 +76,7 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
+			<version>2.7</version>
 		</dependency>
 		
 		<dependency>

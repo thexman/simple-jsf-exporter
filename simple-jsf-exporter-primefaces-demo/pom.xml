@@ -17,7 +17,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-		<version.org.apache.poi>3.17</version.org.apache.poi>
+		<version.org.apache.poi>4.1.1</version.org.apache.poi>
 	</properties>
 	
 	<dependencies>	
